@@ -53,17 +53,30 @@ const categories = [
   }
 ];
 
+
+
+
 app.get('/', async function(req, res) {
   try {
-    const webpage = await fetchpods('https://itunes.apple.com/us/genre/podcasts-arts/id1301?mt=2'); //can be replaced with promise all
-    const $ = cheerio.load(webpage);
-    const $columns = $('#selectedcontent .column');
+    const promiseArray = [];
     const podcasts = [];
-    $columns.toArray().forEach(column => {
-      const podcastListElement = column.children[1];
-      const firstColPodcastLinks = podcastListElement.children.filter(element => element.type === 'tag');
-      const oneColumnPods = firstColPodcastLinks.map(element => buildPodcastData($(element)));
-      podcasts.push(...oneColumnPods);
+
+    const urlList = buildCategoriesUrlList(categories);
+    urlList.forEach(url => {
+      promiseArray.push(fetchpods(url));
+    });
+    
+    const webPages = await Promise.all(promiseArray);
+    webPages.forEach(webpage => {
+      const $ = cheerio.load(webpage);
+      const $columns = $('#selectedcontent .column');
+      
+      $columns.toArray().forEach(column => {
+        const podcastListElement = column.children[1];
+        const firstColPodcastLinks = podcastListElement.children.filter(element => element.type === 'tag');
+        const oneColumnPods = firstColPodcastLinks.map(element => buildPodcastData($(element)));
+        podcasts.push(...oneColumnPods);
+      });
     });
 
     res.send(podcasts);
@@ -72,12 +85,25 @@ app.get('/', async function(req, res) {
   }
 });
 
+function fetchDifferentCategories(){
+
+}
+
 function buildPodcastData($element) {
   const podUrl = $element.children().attr('href');
   const splitUrl = splitUrlOnSlash(podUrl);
   const name = $element.text().trim();
   const id = splitUrl[6].match(/[0-9]\d+/)[0];
   return {id, name, podUrl};
+}
+
+function buildCategoriesUrlList(categories){
+  const urlList = [];
+  categories.forEach((category) => {
+    let link = `https://itunes.apple.com/us/genre/podcasts-${category.name}/id${category.id}?mt=2`
+    urlList.push(link);
+  });
+  return urlList;
 }
 
 function splitUrlOnSlash(podUrl) {
