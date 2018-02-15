@@ -1,8 +1,5 @@
 const request = require('request-promise');
 const cheerio = require('cheerio');
-const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
 
 const categories = [
   {
@@ -53,11 +50,12 @@ const categories = [
   }
 ];
 
+module.exports = {
+  scrapingPodcasts
+};
 
 
-
-app.get('/', async function(req, res) {
-  try {
+async function scrapingPodcasts(){
     const promiseArray = [];
     const podcasts = [];
 
@@ -78,15 +76,7 @@ app.get('/', async function(req, res) {
         podcasts.push(...oneColumnPods);
       });
     });
-
-    res.send(podcasts);
-  } catch (error) {
-    res.send(error.message);
-  }
-});
-
-function fetchDifferentCategories(){
-
+    return podcasts;
 }
 
 function buildPodcastData($element) {
@@ -118,5 +108,3 @@ function fetchpods(url) {
 
   return request(options);
 }
-
-app.listen(8000);
