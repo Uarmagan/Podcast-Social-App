@@ -90,7 +90,7 @@ function buildPodcastData($element) {
 function buildCategoriesUrlList(categories){
   const urlList = [];
   categories.forEach((category) => {
-    let link = `https://itunes.apple.com/us/genre/podcasts-${category.name}/id${category.id}?mt=2`
+    const link = `https://itunes.apple.com/us/genre/podcasts-${category.name}/id${category.id}?mt=2`
     urlList.push(link);
   });
   return urlList;
@@ -103,7 +103,6 @@ function splitUrlOnSlash(podUrl) {
 function fetchpods(url) {
   const options = {
     uri: url,
-    //transform: body => cheerio.load(body)
   };
 
   return request(options);
