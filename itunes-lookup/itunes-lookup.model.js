@@ -7,7 +7,8 @@ const podcastSchema = new Schema({
     artist:String,
     feedUrl:String,
     artworkUrl:String,
-    genres:[String]
+    genres:[String],
+    lastUpdated: { type: Date }
 });
 
 mongoose.model('podcast', podcastSchema);
